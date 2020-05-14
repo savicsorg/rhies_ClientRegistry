@@ -160,6 +160,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     @Search
     public List<Patient> search(
             @OptionalParam(name = "nida") StringParam nida,
+            @OptionalParam(name = "pcid") StringParam pcid,
             @OptionalParam(name = Patient.SP_FAMILY) StringParam FamilyName,
             @OptionalParam(name = Patient.SP_GIVEN) StringParam givenName,
             @OptionalParam(name = Patient.SP_GENDER) StringParam gender,
@@ -169,8 +170,8 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     ) throws UnknownHostException {
         BasicDBObject query = new BasicDBObject();
 
-        if (nida != null) {
-            query.append("id", buildSearchPattern(nida.getValue().toString()));
+        if (pcid != null) {
+            query.append("id", buildSearchPattern(pcid.getValue().toString()));
         }
 
         if (FamilyName != null) {
@@ -196,6 +197,10 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         if (identifier != null) {
             query.append("identifier.value", buildSearchPattern(identifier.getValue().toString()));
         }
+
+       if (nida != null) {
+          query.append("identifier.value", buildSearchPattern(nida.getValue().toString()));
+       }
 
         DBCollection patientCollection = dbConnection().getCollection("patients");
         List<Patient> retVal = new ArrayList<Patient>();
@@ -238,20 +243,17 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
 
         Patient patient = new Patient();
         patient = par.parseResource(Patient.class, incomingPatient);
-
-        //nida existance
+        //PCID existance
         if (patient.getId() == null || patient.getId().equals("")) {
-            utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
-            return method;
-        }
-        //Primary care id existance
-        if (patient.getIdentifier() == null || patient.getIdentifier().size() == 0) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_PCID);
             return method;
+        }
+        //NIDA existance, Notify no nida but save into CR
+        if (patient.getIdentifier() == null || patient.getIdentifier().size() == 0) {
+            utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
         } else {
-            if (!patient.getIdentifier().get(0).getSystem().equals("PCID")) {
-                utils.error(patient, Constants.ERROR_PATIENT_NO_PCID);
-                return method;
+            if (!patient.getIdentifier().get(0).getSystem().equals("NIDA")) {
+                utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
             }
         }
         //name existance
