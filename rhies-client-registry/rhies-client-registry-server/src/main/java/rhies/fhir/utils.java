@@ -10,10 +10,7 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Patient;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +26,6 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import org.apache.commons.lang3.StringUtils;
-
 
 public abstract class utils {
 
@@ -114,14 +110,14 @@ public abstract class utils {
                     + " lacks mandatory field umudugudu  ");
         }
 
-      if (!err.equals(Constants.ERROR_PATIENT_NO_NIDA)) {
-          error(err);
-      }
+        if (!err.equals(Constants.ERROR_PATIENT_NO_NIDA)) {
+            error(err);
+        }
 
     }
 
     public static void error(String err) {
-        OperationOutcome oo =  new OperationOutcome();
+        OperationOutcome oo = new OperationOutcome();
         CodeableConcept detailCode = new CodeableConcept();
         detailCode.setText(err);
         oo.addIssue().setSeverity(OperationOutcome.IssueSeverity.FATAL).setDetails(detailCode);
@@ -134,7 +130,13 @@ public abstract class utils {
         int currentYear = currentdate.getYear();
         Month currentMonth = currentdate.getMonth();
 
-        File logs = new File("logs");
+        String logsHome = System.getenv("CATALINA_HOME");
+        if (logsHome == null) {
+            logsHome = System.getProperty("user.home");
+        }
+
+        File logs = new File(logsHome + "/" + Constants.RHIES_CLIENT_REGISTRY_FOLDER + "/rhiesCRlogs");
+
         if (!logs.exists()) {
             logs.mkdir();
         }
@@ -143,14 +145,14 @@ public abstract class utils {
             if (!logYear.exists()) {
                 logYear.mkdir();
             }
-            File file = new File("logs");
-            String[] logsDirItems = file.list();
+
+            String[] logsDirItems = logs.list();
 
             for (String dirItem : logsDirItems) {
-                if (new File(logs.getPath() +  "/" + dirItem).isDirectory() && StringUtils.isNumeric(dirItem) ) {
+                if (new File(logs.getPath() + "/" + dirItem).isDirectory() && StringUtils.isNumeric(dirItem)) {
                     if (!dirItem.equals(Integer.toString(currentYear))) {
                         File dirToZip = new File("logs/" + dirItem);
-                        zip(dirToZip.getAbsolutePath(), dirToZip.getAbsolutePath()+ ".zip");
+                        zip(dirToZip.getAbsolutePath(), dirToZip.getAbsolutePath() + ".zip");
                         deleteDir(dirToZip);
                     }
                 }
@@ -214,12 +216,12 @@ public abstract class utils {
     public static void zip(String folderToZip, String ZipFileName) {
         try {
             ZipFile zipFile = new ZipFile(ZipFileName);
-            zipFile.createZipFileFromFolder(folderToZip,new ZipParameters(),false,0);
+            zipFile.createZipFileFromFolder(folderToZip, new ZipParameters(), false, 0);
         } catch (ZipException e) {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * This method populates all the files in a directory to a List
      *

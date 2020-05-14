@@ -93,8 +93,16 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
                 propertyHome = System.getProperty("user.home");
             }
 
-            String propertiesfilePath = propertyHome + "/" + Constants.PROPERTIES_FILE_NAME;
+            String propertiesfilePath = propertyHome + "/" + Constants.RHIES_CLIENT_REGISTRY_FOLDER + "/" + Constants.PROPERTIES_FILE_NAME;
+           
             propertiesfile = new File(propertiesfilePath);
+             File propertyHomeFolder = propertiesfile.getParentFile();
+            if (!propertyHomeFolder.exists()) {
+                propertyHomeFolder.mkdir();
+            }
+            
+            
+            
             System.out.println("Stored propreties on  " + propertiesfile.getAbsolutePath());
             if (!propertiesfile.exists()) {
                 OutputStream output = new FileOutputStream(propertiesfile);
@@ -198,9 +206,9 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             query.append("identifier.value", buildSearchPattern(identifier.getValue().toString()));
         }
 
-       if (nida != null) {
-          query.append("identifier.value", buildSearchPattern(nida.getValue().toString()));
-       }
+        if (nida != null) {
+            query.append("identifier.value", buildSearchPattern(nida.getValue().toString()));
+        }
 
         DBCollection patientCollection = dbConnection().getCollection("patients");
         List<Patient> retVal = new ArrayList<Patient>();

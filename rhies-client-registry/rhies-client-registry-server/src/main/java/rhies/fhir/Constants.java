@@ -6,6 +6,7 @@
 package rhies.fhir;
 
 public abstract class Constants {
+    public static final String RHIES_CLIENT_REGISTRY_FOLDER = "RhiesClientRegistry";
     public static final String PROPERTIES_FILE_NAME = "RhiesCRConfig.properties";
     public static final String DEFAULT_DB_URL = "localhost";
     public static final String DEFAULT_DB_PORT = "27017";
