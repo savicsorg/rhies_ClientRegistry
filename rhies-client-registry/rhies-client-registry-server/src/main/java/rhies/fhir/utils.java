@@ -114,12 +114,14 @@ public abstract class utils {
                     + " lacks mandatory field umudugudu  ");
         }
 
-        error(err);
+      if (!err.equals(Constants.ERROR_PATIENT_NO_NIDA)) {
+          error(err);
+      }
 
     }
 
     public static void error(String err) {
-        OperationOutcome oo = new OperationOutcome();
+        OperationOutcome oo =  new OperationOutcome();
         CodeableConcept detailCode = new CodeableConcept();
         detailCode.setText(err);
         oo.addIssue().setSeverity(OperationOutcome.IssueSeverity.FATAL).setDetails(detailCode);
