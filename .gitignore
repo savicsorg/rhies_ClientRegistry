@@ -1,0 +1,14 @@
+.DS_Store
+._.DS_Store
+
+*.seed
+*.log
+*.dat
+*.out
+*.pid
+*.gz
+
+
+/.idea
+ rhies-client-registry/rhies-client-registry-server/.idea/*
+ 
