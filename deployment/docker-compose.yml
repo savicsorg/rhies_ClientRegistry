@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  rhies-client-registry-mongo:
+    image: mongo:latest
+    container_name: rhies-client-registry-mongo
+    restart: always
+    ports:
+    - "27019:27017"
+    logging:
+      options:
+        max-size: 5m
+
+
+  rhies-client-registry:
+    image: savicsorg/rhies-client-registry:latest
+    container_name: rhies-client-registry
+    ports:
+      - "8079:8080"
+    restart: always
+    depends_on:
+      - rhies-client-registry-mongo
+    volumes:
+      - ./disc/rhies-client-registry/:/usr/local/tomcat/RhiesClientRegistry/
+    logging:
+        options:
+          max-size: 5m
