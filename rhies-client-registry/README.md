@@ -11,11 +11,10 @@ This project is client Registry project created using Hapifhir
 * Start by cloning the project 
 ``` git clone https://github.com/savicsorg/fhirstarters.git ``` 
 
-* Run the following command to install the dependencies:
+``` cd .\rhies_ClientRegistry\ ```
 
-```
-mvn install
-```
+``` cd .\rhies-client-registry\ ```
+
 * Run the following command to compile the project and start a local testing server that runs it:
 
 ```
