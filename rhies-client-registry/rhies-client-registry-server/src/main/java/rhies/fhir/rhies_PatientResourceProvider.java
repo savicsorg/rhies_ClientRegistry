@@ -257,7 +257,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             return method;
         }
         //NIDA existance, Notify no nida but save into CR
-        if (patient.getIdentifier() == null || patient.getIdentifier().size() == 0) {
+        if (patient.getIdentifier() == null || patient.getIdentifier().isEmpty()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
         } else {
             if (!patient.getIdentifier().get(0).getSystem().equals("NIDA")) {
@@ -265,7 +265,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             }
         }
         //name existance
-        if (patient.getName() == null || patient.getName().size() == (0)) {
+        if (patient.getName() == null ||  patient.getName().isEmpty()  || (!patient.getName().get(0).hasFamily() ||  !patient.getName().get(0).hasGiven())) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_NAME);
             return method;
         }
@@ -280,19 +280,19 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             return method;
         }
         //fatherName existance
-        if (patient.getExtensionByUrl("fatherName") == null || patient.getExtensionByUrl("fatherName").getValue() == null || patient.getExtensionByUrl("fatherName").getValue().equals("")) {
+        if (!patient.getExtensionByUrl("fatherName").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_FATHERNAME);
             return method;
         }
 
         //motherName existance
-        if (patient.getExtensionByUrl("motherName") == null || patient.getExtensionByUrl("motherName").getValue() == null || patient.getExtensionByUrl("motherName").getValue().equals("")) {
+        if (!patient.getExtensionByUrl("motherName").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_MOTHERNAME);
             return method;
         }
 
         //address existance
-        if (patient.getAddress() == null || patient.getAddress().size() == 0) {
+        if (patient.getAddress() == null || patient.getAddress().isEmpty()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_ADDRESS);
             return method;
         }
@@ -316,19 +316,19 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         }
 
         //city/sector existance
-        if (patient.getExtensionByUrl("sector") == null || patient.getExtensionByUrl("sector").getValue() == null || patient.getExtensionByUrl("sector").getValue().equals("")) {
+        if (!patient.getExtensionByUrl("sector").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_SECTOR);
             return method;
         }
 
         //cell existance
-        if (patient.getExtensionByUrl("cell") == null || patient.getExtensionByUrl("cell").getValue() == null || patient.getExtensionByUrl("cell").getValue().equals("")) {
+        if (!patient.getExtensionByUrl("cell").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_CELL);
             return method;
         }
 
         //umudugudu existance
-        if (patient.getExtensionByUrl("umudugudu") == null || patient.getExtensionByUrl("umudugudu").getValue() == null || patient.getExtensionByUrl("umudugudu").getValue().equals("")) {
+        if (!patient.getExtensionByUrl("umudugudu").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_UMUDUGUDU);
             return method;
         }
