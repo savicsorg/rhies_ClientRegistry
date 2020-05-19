@@ -1,4 +1,4 @@
-# RHIES CLIENT REGISTRY
+# RHIES Client Registry
 
 This project is client Registry project created using Hapifhir
 
