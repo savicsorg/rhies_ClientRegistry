@@ -1,4 +1,4 @@
-# rhies_ClientRegistry
+# RHIES Client Registry
 
 This repository contains two repositories, deployment and rhies-client-registry:
 1. The deployment repository contains deployment instructions or guidelines to the deploy of the app. 
