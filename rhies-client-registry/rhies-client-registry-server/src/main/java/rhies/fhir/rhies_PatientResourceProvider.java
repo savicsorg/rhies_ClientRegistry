@@ -279,14 +279,15 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             utils.error(patient, Constants.ERROR_PATIENT_NO_GENDER);
             return method;
         }
+
         //fatherName existance
-        if (!patient.getExtensionByUrl("fatherName").hasValue()) {
+        if (!patient.getContact().get(0).getExtensionByUrl("fatherName").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_FATHERNAME);
             return method;
         }
 
         //motherName existance
-        if (!patient.getExtensionByUrl("motherName").hasValue()) {
+        if (!patient.getContact().get(0).getExtensionByUrl("motherName").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_MOTHERNAME);
             return method;
         }
@@ -314,30 +315,24 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             utils.error(patient, Constants.ERROR_PATIENT_NO_DISTRICT);
             return method;
         }
-        
-        //line/sector existance
-        if (patient.getAddress().get(0).getLine() == null || patient.getAddress().get(0).getLine().isEmpty()) {
+
+        //city/sector existance
+        if (!patient.getAddress().get(0).getExtensionByUrl("sector").hasValue()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_SECTOR);
             return method;
         }
 
-        // //city/sector existance
-        // if (!patient.getExtensionByUrl("sector").hasValue()) {
-        //     utils.error(patient, Constants.ERROR_PATIENT_NO_SECTOR);
-        //     return method;
-        // }
+        //cell existance
+        if (!patient.getAddress().get(0).getExtensionByUrl("cell").hasValue()) {
+            utils.error(patient, Constants.ERROR_PATIENT_NO_CELL);
+            return method;
+        }
 
-        // //cell existance
-        // if (!patient.getExtensionByUrl("cell").hasValue()) {
-        //     utils.error(patient, Constants.ERROR_PATIENT_NO_CELL);
-        //     return method;
-        // }
-
-        // //umudugudu existance
-        // if (!patient.getExtensionByUrl("umudugudu").hasValue()) {
-        //     utils.error(patient, Constants.ERROR_PATIENT_NO_UMUDUGUDU);
-        //     return method;
-        // }
+        //umudugudu existance
+        if (!patient.getAddress().get(0).getExtensionByUrl("umudugudu").hasValue()) {
+            utils.error(patient, Constants.ERROR_PATIENT_NO_UMUDUGUDU);
+            return method;
+        }
 
         //everything is ok,  we can save
         DBCollection patientCollection = dbConnection().getCollection("patients");
