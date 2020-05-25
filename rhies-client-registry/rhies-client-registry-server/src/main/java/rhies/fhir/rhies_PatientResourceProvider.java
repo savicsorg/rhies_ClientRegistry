@@ -314,24 +314,30 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             utils.error(patient, Constants.ERROR_PATIENT_NO_DISTRICT);
             return method;
         }
-
-        //city/sector existance
-        if (!patient.getExtensionByUrl("sector").hasValue()) {
+        
+        //line/sector existance
+        if (patient.getAddress().get(0).getLine() == null || patient.getAddress().get(0).getLine().isEmpty()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_SECTOR);
             return method;
         }
 
-        //cell existance
-        if (!patient.getExtensionByUrl("cell").hasValue()) {
-            utils.error(patient, Constants.ERROR_PATIENT_NO_CELL);
-            return method;
-        }
+        // //city/sector existance
+        // if (!patient.getExtensionByUrl("sector").hasValue()) {
+        //     utils.error(patient, Constants.ERROR_PATIENT_NO_SECTOR);
+        //     return method;
+        // }
 
-        //umudugudu existance
-        if (!patient.getExtensionByUrl("umudugudu").hasValue()) {
-            utils.error(patient, Constants.ERROR_PATIENT_NO_UMUDUGUDU);
-            return method;
-        }
+        // //cell existance
+        // if (!patient.getExtensionByUrl("cell").hasValue()) {
+        //     utils.error(patient, Constants.ERROR_PATIENT_NO_CELL);
+        //     return method;
+        // }
+
+        // //umudugudu existance
+        // if (!patient.getExtensionByUrl("umudugudu").hasValue()) {
+        //     utils.error(patient, Constants.ERROR_PATIENT_NO_UMUDUGUDU);
+        //     return method;
+        // }
 
         //everything is ok,  we can save
         DBCollection patientCollection = dbConnection().getCollection("patients");
