@@ -94,15 +94,13 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             }
 
             String propertiesfilePath = propertyHome + "/" + Constants.RHIES_CLIENT_REGISTRY_FOLDER + "/" + Constants.PROPERTIES_FILE_NAME;
-           
+
             propertiesfile = new File(propertiesfilePath);
-             File propertyHomeFolder = propertiesfile.getParentFile();
+            File propertyHomeFolder = propertiesfile.getParentFile();
             if (!propertyHomeFolder.exists()) {
                 propertyHomeFolder.mkdir();
             }
-            
-            
-            
+
             System.out.println("Stored propreties on  " + propertiesfile.getAbsolutePath());
             if (!propertiesfile.exists()) {
                 OutputStream output = new FileOutputStream(propertiesfile);
@@ -242,6 +240,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         MethodOutcome method = new MethodOutcome();
         IParser par = ctx.newJsonParser();
         JsonParser parser = new JsonParser();
+        String nida = "";
 
         //errors handling
         if (incomingPatient == null || incomingPatient.trim().equals("")) {
@@ -256,16 +255,19 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             utils.error(patient, Constants.ERROR_PATIENT_NO_PCID);
             return method;
         }
+
         //NIDA existance, Notify no nida but save into CR
         if (patient.getIdentifier() == null || patient.getIdentifier().isEmpty()) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
         } else {
             if (!patient.getIdentifier().get(0).getSystem().equals("NIDA")) {
                 utils.error(patient, Constants.ERROR_PATIENT_NO_NIDA);
+            } else {
+                nida = patient.getIdentifier().get(0).getValue();
             }
         }
         //name existance
-        if (patient.getName() == null ||  patient.getName().isEmpty()  || (!patient.getName().get(0).hasFamily() ||  !patient.getName().get(0).hasGiven())) {
+        if (patient.getName() == null || patient.getName().isEmpty() || (!patient.getName().get(0).hasFamily() || !patient.getName().get(0).hasGiven())) {
             utils.error(patient, Constants.ERROR_PATIENT_NO_NAME);
             return method;
         }
@@ -334,19 +336,39 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             return method;
         }
 
-        //everything is ok,  we can save
+        //Everything is ok,  we can save
         DBCollection patientCollection = dbConnection().getCollection("patients");
-        BasicDBObject query = new BasicDBObject("id", patient.getId().split("/")[1]);
-        DBCursor cursor = patientCollection.find(query);
+        BasicDBObject query = null;
 
-        DBObject dbobject = cursor.one();
-        String encoded = par.encodeResourceToString(patient);
-        DBObject doc = (DBObject) JSON.parse(encoded);
+        // NIDA as first criteria, PCID comes next. But PCID is mandatory. so PCID is main id
+        if (nida != null  && !nida.trim().equals("")) { //nida exists
+            BasicDBObject value = new BasicDBObject("system", "NIDA");
+            value.put("value", nida);
+            query = new BasicDBObject("identifier", value);
+            DBCursor cursor = patientCollection.find(query);
 
-        if (dbobject != null) {
-            patientCollection.update(query, doc);
+            DBObject dbobject = cursor.one();
+            String encoded = par.encodeResourceToString(patient);
+            DBObject doc = (DBObject) JSON.parse(encoded);
+
+            if (dbobject != null) {
+                patientCollection.update(query, doc);
+            } else {
+                patientCollection.insert(doc);
+            }
         } else {
-            patientCollection.insert(doc);
+            query = new BasicDBObject("id", patient.getId().split("/")[1]);
+            DBCursor cursor = patientCollection.find(query);
+
+            DBObject dbobject = cursor.one();
+            String encoded = par.encodeResourceToString(patient);
+            DBObject doc = (DBObject) JSON.parse(encoded);
+
+            if (dbobject != null) {
+                patientCollection.update(query, doc);
+            } else {
+                patientCollection.insert(doc);
+            }
         }
 
         method.setCreated(true);

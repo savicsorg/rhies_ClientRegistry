@@ -36,7 +36,7 @@ public abstract class utils {
     public static void error(Patient patient, String err) throws IOException {
 
         if (err.equals(Constants.ERROR_PATIENT_NO_NIDA)) {
-            log("The patient " + patient.getId() + " with Fosa ID " + patient.getExtensionByUrl("fosaId").getValue()
+            log("[Warning] The patient " + patient.getId() + " with Fosa ID " + patient.getExtensionByUrl("fosaId").getValue()
                     + " lacks mandatory field Nida  ");
         }
 
