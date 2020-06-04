@@ -18,6 +18,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.util.JSON;
 
+import org.apache.commons.codec.binary.Base64;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Patient;
@@ -49,10 +50,22 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     static File propertiesfile = null;
 
     public rhies_PatientResourceProvider() {
-
+        try {
+            DBCollection userCollection = dbConnection().getCollection("users");
+            BasicDBObject user = new BasicDBObject("username", "admin").append("password", "YWRtaW5QYXNzMTIzNA==");
+            DBCursor cursor = userCollection.find(user);
+            DBObject dbobject = cursor.one();
+            if (dbobject == null) {
+                userCollection.insert(user);
+            }
+            
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    public DB dbConnection() throws UnknownHostException {
+    public static DB dbConnection() throws UnknownHostException {
         getProperty();
         MongoClient mongoClient = new MongoClient(URL, PORT);
         DB database = mongoClient.getDB(DBNAME);
@@ -93,16 +106,15 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
                 propertyHome = System.getProperty("user.home");
             }
 
-            String propertiesfilePath = propertyHome + "/" + Constants.RHIES_CLIENT_REGISTRY_FOLDER + "/" + Constants.PROPERTIES_FILE_NAME;
-           
+            String propertiesfilePath = propertyHome + "/" + Constants.RHIES_CLIENT_REGISTRY_FOLDER + "/"
+                    + Constants.PROPERTIES_FILE_NAME;
+
             propertiesfile = new File(propertiesfilePath);
-             File propertyHomeFolder = propertiesfile.getParentFile();
+            File propertyHomeFolder = propertiesfile.getParentFile();
             if (!propertyHomeFolder.exists()) {
                 propertyHomeFolder.mkdir();
             }
-            
-            
-            
+
             System.out.println("Stored propreties on  " + propertiesfile.getAbsolutePath());
             if (!propertiesfile.exists()) {
                 OutputStream output = new FileOutputStream(propertiesfile);
@@ -122,6 +134,24 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         return Patient.class;
     }
 
+    public static boolean authenticate(String username, String password) throws UnknownHostException {
+        DBCollection userCollection = dbConnection().getCollection("users");
+        BasicDBObject query = new BasicDBObject("username", username);
+        DBCursor cursor = userCollection.find(query);
+        DBObject dbobject = cursor.one();
+        
+        String userName = (String) dbobject.get("username");
+        String passWord = (String) dbobject.get("password");
+        
+        if (!username.equals(userName) || !password.equals(new String(Base64.decodeBase64(passWord)))){
+            return false;
+        }
+        else {
+            return true;
+        }
+       
+    }
+
     /**
      * Implementation of the "read" (Get) method
      *
@@ -131,7 +161,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     @Read
     public Patient read(@IdParam IdType theId) throws ResourceNotFoundException, SecurityException, IOException {
         Patient fhirPatient = new Patient();
-
+        
         DBCollection patientCollection = dbConnection().getCollection("patients");
 
         BasicDBObject query = new BasicDBObject("id", theId.getValue().split("/")[1]);
@@ -238,7 +268,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
      * @throws IOException
      */
     @Create
-    public MethodOutcome create(@ResourceParam String incomingPatient) throws NullPointerException, IOException {
+    public MethodOutcome create(@ResourceParam String incomingPatient) throws NullPointerException, IOException {   
         MethodOutcome method = new MethodOutcome();
         IParser par = ctx.newJsonParser();
         JsonParser parser = new JsonParser();
@@ -250,6 +280,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         }
 
         Patient patient = new Patient();
+
         patient = par.parseResource(Patient.class, incomingPatient);
         //PCID existance
         if (patient.getId() == null || patient.getId().equals("")) {

@@ -4,7 +4,10 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IClientInterceptor;
+import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.server.RestfulServer;
+import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import static rhies.fhir.rhies_PatientResourceProvider.createProperties;
 
@@ -22,5 +25,8 @@ public class rhies_SimpleRestfulServer extends RestfulServer {
 
         // Format the responses in nice HTML
         registerInterceptor(new ResponseHighlighterInterceptor());
+
+         // Register an authorization interceptor against the client
+        registerInterceptor(new rhies_AuthorizationInterceptor());
     }
 }
