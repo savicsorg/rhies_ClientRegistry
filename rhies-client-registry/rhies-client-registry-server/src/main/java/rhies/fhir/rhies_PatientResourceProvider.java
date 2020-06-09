@@ -49,10 +49,22 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     static File propertiesfile = null;
 
     public rhies_PatientResourceProvider() {
+        try {
+            DBCollection userCollection = dbConnection().getCollection("users");
+            BasicDBObject user = new BasicDBObject("username", "rhiesEMR").append("password", "YWRtaW5QYXNzMTIzNA==");
+            DBCursor cursor = userCollection.find(user);
+            DBObject dbobject = cursor.one();
+            if (dbobject == null) {
+                userCollection.insert(user);
+            }
 
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    public DB dbConnection() throws UnknownHostException {
+    public static DB dbConnection() throws UnknownHostException {
         getProperty();
         MongoClient mongoClient = new MongoClient(URL, PORT);
         DB database = mongoClient.getDB(DBNAME);
@@ -118,6 +130,20 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
     @Override
     public Class<? extends IBaseResource> getResourceType() {
         return Patient.class;
+    }
+
+    public static boolean authenticate(String username, String password) throws UnknownHostException {
+        DBCollection userCollection = dbConnection().getCollection("users");
+        
+        BasicDBObject query =  new BasicDBObject("username", username).append("password", password);
+        DBCursor cursor = userCollection.find(query);
+        DBObject dbobject = cursor.one();
+
+        if (dbobject != null &&  dbobject.get("_id") !=null) {
+           return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -249,6 +275,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         }
 
         Patient patient = new Patient();
+
         patient = par.parseResource(Patient.class, incomingPatient);
         //PCID existance
         if (patient.getId() == null || patient.getId().equals("")) {

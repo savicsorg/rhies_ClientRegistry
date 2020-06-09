@@ -4,25 +4,59 @@ import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.interceptor.auth.AuthorizationInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRule;
 import ca.uhn.fhir.rest.server.interceptor.auth.RuleBuilder;
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Observation;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+
 public class rhies_AuthorizationInterceptor extends AuthorizationInterceptor {
-   @Override
-   public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
 
-      // Process this header
-      String authHeader = theRequestDetails.getHeader("Authorization");
+    @Override
+    public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
 
-      RuleBuilder builder = new RuleBuilder();
-      builder
-         .allow().metadata().andThen()
-         .allow().read().allResources().withAnyId().andThen()
-         .allow().write().resourcesOfType(Observation.class).inCompartment("Patient", new IdType("Patient/123"));
+        boolean userIsAdmin = false;
+        String authHeader = theRequestDetails.getHeader("Authorization");
+        if (authHeader == null || authHeader.startsWith("Basic ") == false) {
+            utils.error("Missing or invalid Authorization header value");
+        } else {
+            String base64 = authHeader.substring("Basic ".length());
+            String base64decoded = new String(Base64.decodeBase64(base64));
+            String[] parts = base64decoded.split("\\:");
 
-      return builder.build();
-   }
+            String username = parts[0];
+            String password = parts[1];
+            boolean result = false;
+
+            try {
+                result = rhies_PatientResourceProvider.authenticate(username, password);
+
+            } catch (UnknownHostException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+            if (result == false) {
+                // throw new AuthenticationException("Invalid username or password");
+                utils.error("Invalid username or password");
+            } else {
+                userIsAdmin = true;
+            }
+
+        }
+
+        // If the user is an admin, allow everything
+        if (userIsAdmin) {
+            return new RuleBuilder()
+                    .allowAll()
+                    .build();
+        }
+
+        // By default, deny everything. This should never get hit, but it's 
+        // good to be defensive
+        return new RuleBuilder()
+                .denyAll()
+                .build();
+    }
 
 }

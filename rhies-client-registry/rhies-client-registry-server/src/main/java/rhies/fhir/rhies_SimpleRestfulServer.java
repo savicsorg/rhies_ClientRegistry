@@ -22,5 +22,8 @@ public class rhies_SimpleRestfulServer extends RestfulServer {
 
         // Format the responses in nice HTML
         registerInterceptor(new ResponseHighlighterInterceptor());
+
+         // Register an authorization interceptor against the client
+        registerInterceptor(new rhies_AuthorizationInterceptor());
     }
 }
