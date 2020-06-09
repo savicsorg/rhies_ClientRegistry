@@ -341,7 +341,7 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
         BasicDBObject query = null;
 
         // NIDA as first criteria, PCID comes next. But PCID is mandatory. so PCID is main id
-        if (nida != null  && !nida.trim().equals("")) { //nida exists
+        if (nida != null && !nida.trim().equals("")) { //nida exists
             BasicDBObject value = new BasicDBObject("system", "NIDA");
             value.put("value", nida);
             query = new BasicDBObject("identifier", value);
@@ -354,7 +354,19 @@ public class rhies_PatientResourceProvider implements IResourceProvider {
             if (dbobject != null) {
                 patientCollection.update(query, doc);
             } else {
-                patientCollection.insert(doc);
+                //NIDA not exists, check if not exists with PCID
+                query = new BasicDBObject("id", patient.getId().split("/")[1]);
+                cursor = patientCollection.find(query);
+
+                dbobject = cursor.one();
+                encoded = par.encodeResourceToString(patient);
+                doc = (DBObject) JSON.parse(encoded);
+
+                if (dbobject != null) {
+                    patientCollection.update(query, doc);
+                } else {
+                    patientCollection.insert(doc);
+                }
             }
         } else {
             query = new BasicDBObject("id", patient.getId().split("/")[1]);
