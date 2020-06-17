@@ -6,3 +6,6 @@ This repository contains two repositories, deployment and rhies-client-registry:
 
 2. The rhies-ClientRegistry contains the client registry implemented in HAPIFHIR.
     Read the README.nd to find out the pre-requisites for running HAPIFHIR in your local pc.
+
+### Main Contributors ###
+* Developers: Ivan ATURINDA
