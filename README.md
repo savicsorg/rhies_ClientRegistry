@@ -22,5 +22,5 @@ Proprietary.
 ## In Collaboration with
 [Rwanda Biomedical Centre (RBC)](https://www.rbc.gov.rw/)
 
-### Main Contributors
+## Main Contributors
 * Developers: Gilbert AGBODAMKOU, Ivan ATURINDA
