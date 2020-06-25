@@ -24,3 +24,9 @@ Mozilla Public License 2.0
 
 ## Main Contributors
 * Developers: Gilbert AGBODAMKOU, Ivan ATURINDA
+
+## Libraries We Use
+The following sets forth attribution notices for third party software that may be contained in portions of this repository. We thank the open source community for all of their contributions.
+
+* HAPI FHIR (License: Apache License 2.0)
+* [fhirstarters](https://github.com/FirelyTeam/fhirstarters) by Firely (License: Copyright (c) 2015, Furore)
